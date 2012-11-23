@@ -1,6 +1,7 @@
 package org.open2jam.render;
 
 import org.lwjgl.opengl.DisplayMode;
+import org.open2jam.render.lwjgl.shaders.ShaderManager;
 
 /**
  * The window in which the game will be displayed. This interface exposes just
@@ -55,4 +56,7 @@ public interface GameWindow {
 
         /** manually update the screen */
         public void update();
+	
+	public void setShaderManager(ShaderManager shaderManager);
+	public ShaderManager getShaderManager();
 }

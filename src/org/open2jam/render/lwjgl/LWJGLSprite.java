@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 import org.open2jam.GameOptions;
 import org.open2jam.render.Sprite;
+import org.open2jam.render.lwjgl.shaders.ShaderManager;
 
 
 public class LWJGLSprite implements Sprite {
@@ -32,6 +33,8 @@ public class LWJGLSprite implements Sprite {
     
     /** do blend alpha */
     private boolean blend_alpha = false;
+    
+    private static ShaderManager shaderManager = ShaderManager.getInstance();
 
     /**
      * Create a new sprite from a specified image.
@@ -200,11 +203,15 @@ public class LWJGLSprite implements Sprite {
      * @param sx the scale of the image width
      * @param sy the scale of the image height
      */
-    void draw(float px, float py, float sx, float sy, int w, int h, ByteBuffer buffer)
+    void draw(float px, float py, float sx, float sy, int w, int h, String shaderProgram, ByteBuffer buffer)
     {                
         // store the current model matrix
         GL11.glPushMatrix();
         
+	if(shaderManager.containsKey(shaderProgram)) {
+	    shaderManager.get(shaderProgram).use();
+	}
+	
         // set to blend if necessary
         if(blend_alpha)GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_DST_ALPHA);
 
@@ -234,26 +241,15 @@ public class LWJGLSprite implements Sprite {
         // undo the blend
         if(blend_alpha)GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
         if(texture == null)GL11.glEnable(GL11.GL_TEXTURE_2D);
+	
+	if(shaderManager.containsKey(shaderProgram)) {
+	    shaderManager.get(shaderProgram).stop();
+	}
 
         // restore the model view matrix to prevent contamination
         GL11.glPopMatrix();
     }
     
-    public void draw(float x, float y, float scale_x, float scale_y)
-    {
-	this.draw(x, y, scale_x, scale_y, 0, 0, null);
-    }
-
-    public void draw(double x, double y, float scale_x, float scale_y)
-    {
-         this.draw((float)x,(float)y, scale_x, scale_y);
-    }
-
-    public void draw(double x, double y)
-    {
-        this.draw((float)x,(float)y, scale_x, scale_y);
-    }
-
     public void setScale(float x, float y) {
         this.scale_x = x;
         this.scale_y = y;
@@ -266,19 +262,56 @@ public class LWJGLSprite implements Sprite {
     public float getScaleY() {
         return scale_y;
     }
+       
+    @Override
+    public void setBlendAlpha(boolean b) {
+        blend_alpha = b;
+    }
+    
+    @Override
+    public void draw(double x, double y)
+    {
+        this.draw((float)x,(float)y, scale_x, scale_y);
+    }
+    
+    @Override
+    public void draw(double x, double y, String shaderProgram) {
+	this.draw((float)x,(float)y, scale_x, scale_y, shaderProgram);
+    }
+    
+    public void draw(float x, float y, float scale_x, float scale_y)
+    {
+	this.draw(x, y, scale_x, scale_y, 0, 0, null);
+    }
+
+    @Override
+    public void draw(double x, double y, float scale_x, float scale_y)
+    {
+         this.draw((float)x,(float)y, scale_x, scale_y);
+    }
 
     @Override
     public void draw(double x, double y, int w, int h, ByteBuffer buffer) {
-	this.draw((float)x, (float)y, scale_x, scale_y, w, h, buffer);
+	this.draw((float)x, (float)y, scale_x, scale_y, w, h, null, buffer);
     }
 
     @Override
     public void draw(double x, double y, float scale_x, float scale_y, int w, int h, ByteBuffer buffer) {
-	this.draw((float)x, (float)y, scale_x, scale_y, w, h, buffer);
+	this.draw((float)x, (float)y, scale_x, scale_y, w, h, null, buffer);
     }
-    
+
     @Override
-    public void setBlendAlpha(boolean b) {
-        blend_alpha = b;
+    public void draw(double x, double y, int w, int h, String shaderProgram, ByteBuffer buffer) {
+	this.draw((float)x, (float)y, scale_x, scale_y, w, h, null, buffer);
+    }
+
+    @Override
+    public void draw(double x, double y, float scale_x, float scale_y, String shaderProgram) {
+	this.draw((float)x, (float)y, scale_x, scale_y, 0, 0, shaderProgram, null);
+    }
+
+    @Override
+    public void draw(double x, double y, float scale_x, float scale_y, int w, int h, String shaderProgram, ByteBuffer buffer) {
+	this.draw((float)x, (float)y, scale_x, scale_y, w, h, shaderProgram, buffer);
     }
 }

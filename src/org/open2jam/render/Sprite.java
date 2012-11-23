@@ -56,7 +56,11 @@ public interface Sprite {
 	 * @param y The y location at which to draw the sprite
      */
 	public void draw(double x, double y);
+	public void draw(double x, double y, String shaderProgram);
 	public void draw(double x, double y, int w, int h, ByteBuffer buffer);
+	public void draw(double x, double y, int w, int h, String shaderProgram, ByteBuffer buffer);
         public void draw(double x, double y, float scale_x, float scale_y);
+	public void draw(double x, double y, float scale_x, float scale_y, String shaderProgram);
 	public void draw(double x, double y, float scale_x, float scale_y, int w, int h, ByteBuffer buffer);
+	public void draw(double x, double y, float scale_x, float scale_y, int w, int h, String shaderProgram, ByteBuffer buffer);
 }

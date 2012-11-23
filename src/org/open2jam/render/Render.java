@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map.Entry;
 import java.util.*;
@@ -38,6 +39,11 @@ import org.open2jam.game.position.NoteDistanceCalculator;
 import org.open2jam.game.position.RegulSpeed;
 import org.open2jam.game.position.XRSpeed;
 import org.open2jam.render.lwjgl.TrueTypeFont;
+import org.open2jam.render.lwjgl.shaders.FragShader;
+import org.open2jam.render.lwjgl.shaders.ShaderException;
+import org.open2jam.render.lwjgl.shaders.ShaderManager;
+import org.open2jam.render.lwjgl.shaders.ShaderProgram;
+import org.open2jam.render.lwjgl.shaders.VertShader;
 import org.open2jam.sound.Sound;
 import org.open2jam.sound.SoundChannel;
 import org.open2jam.sound.SoundSystem;
@@ -53,6 +59,7 @@ public class Render implements GameWindowCallback
 {
     private String localMatchingServer = "";
     private int rank;
+    private ShaderManager shaderManager = ShaderManager.getInstance();
     
     public interface AutosyncCallback {
         void autosyncFinished(double displayLag);
@@ -544,6 +551,31 @@ public class Render implements GameWindowCallback
 	
         trueTypeFont = new TrueTypeFont(new Font("Tahoma", Font.BOLD, 14), false);
         
+	//load shadermanager
+	File vertFile = null;
+	File fragFile = null;
+	try {
+	    vertFile = new File(Render.class.getResource("/resources/simple_shader.vert").toURI());
+	    fragFile = new File(Render.class.getResource("/resources/simple_shader.frag").toURI());
+	} catch (URISyntaxException ex) {
+	    java.util.logging.Logger.getLogger(Render.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	
+	ShaderProgram shaderProgram = null;
+	try {
+	    VertShader vert = new VertShader(vertFile);
+	    FragShader frag = new FragShader(fragFile);
+	    shaderProgram = new ShaderProgram("notes", vert, frag);
+	} catch (ShaderException ex) {
+	    ex.printStackTrace();
+	}
+	    
+	if(shaderProgram != null) {
+	    shaderManager.put(shaderProgram);
+	}
+	
+	window.setShaderManager(shaderManager);
+	
         //clean up
         System.gc();
 

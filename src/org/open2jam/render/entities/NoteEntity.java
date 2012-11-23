@@ -100,6 +100,11 @@ public class NoteEntity extends AnimatedEntity implements TimeEntity
     public void judgment() {}
 
     @Override
+    public void draw() {
+	sprite.draw(x,y, sprite.getScaleX(), sprite.getScaleY(), "notes");
+    }
+
+    @Override
     public NoteEntity copy(){
         return new NoteEntity(this);
     }

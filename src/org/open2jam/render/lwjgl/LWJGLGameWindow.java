@@ -13,6 +13,7 @@ import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.open2jam.render.GameWindow;
 import org.open2jam.render.GameWindowCallback;
+import org.open2jam.render.lwjgl.shaders.ShaderManager;
 import org.open2jam.util.Logger;
 
 /**
@@ -44,8 +45,10 @@ public class LWJGLGameWindow implements GameWindow {
 	/** Title of window, we get it before our window is ready, so store it till needed */
 	private String title;
 
-    private float scale_x = 1f, scale_y = 1f;
+	private float scale_x = 1f, scale_y = 1f;
         private float scale_x2 = 1f, scale_y2 = 1f;
+	
+	public ShaderManager shaderManager = ShaderManager.getInstance();
 
 	/**
 	 * Create a new game window that will use OpenGL to 
@@ -97,6 +100,14 @@ public class LWJGLGameWindow implements GameWindow {
 
 	public int getResolutionHeight(){ return height; }
         public int getResolutionWidth(){ return width; }
+	
+	public void setShaderManager(ShaderManager shaderManager) {
+	    this.shaderManager = shaderManager;
+	}
+	
+	public ShaderManager getShaderManager() {
+	    return shaderManager;
+	}
 	
 	/**
 	 * Start the rendering process. This method will cause the display to redraw
